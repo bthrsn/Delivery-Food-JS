@@ -29,7 +29,7 @@ const cartButton = document.querySelector("#cart-button"),
 
 // День 1 Логин сохраняется в local storage
 let login = localStorage.getItem("gloDelivery");
-// День 4 Корзина сохраняется в local storage
+// День 4 Корзина сохраняется в local storage и привязана к логину
 const loadCart = function () {
   if (localStorage.getItem(login)) {
     JSON.parse(localStorage.getItem(login)).forEach(function (item) {
