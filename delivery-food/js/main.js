@@ -25,11 +25,22 @@ const cartButton = document.querySelector("#cart-button"),
   modalBody = document.querySelector(".modal-body"),
   modalPrice = document.querySelector(".modal-pricetag"),
   buttonClearCart = document.querySelector(".clear-cart"),
-  // День 4 Корзина сохраняется в local storage
   cart = [];
 
 // День 1 Логин сохраняется в local storage
 let login = localStorage.getItem("gloDelivery");
+// День 4 Корзина сохраняется в local storage
+const loadCart = function () {
+  if (localStorage.getItem(login)) {
+    JSON.parse(localStorage.getItem(login)).forEach(function (item) {
+      cart.push(item);
+    });
+  }
+};
+
+const saveCart = function () {
+  localStorage.setItem(login, JSON.stringify(cart));
+};
 // День 3 получить данные с сервера, запустить ошибку, если ответ false
 const getData = async function (url) {
   const response = await fetch(url);
@@ -63,6 +74,7 @@ function returnMain() {
 function authorized() {
   function logOut() {
     login = "";
+    cart.length = 0;
     localStorage.removeItem("gloDelivery");
     buttonAuth.style.display = "";
     userName.style.display = "";
@@ -79,6 +91,7 @@ function authorized() {
   buttonOut.style.display = "flex";
   cartButton.style.display = "flex";
   buttonOut.addEventListener("click", logOut);
+  loadCart();
 }
 // День 1 функция, если не авторизован и нажал на войти
 function notAuthorized() {
@@ -241,13 +254,12 @@ function addToCart() {
     }
     console.log(cart);
   }
+  saveCart();
 }
 // День 4 формирование списка корзины
 function renderCart() {
   // День 4 Очистить корзину
   modalBody.textContent = "";
-  // День 4 Добавить сохраненные товары в корзину
-  // localStorage.setItem("cartDelivery", cart);
   // День 4 Доавить товары в корзину
   cart.forEach(function ({ id, title, cost, count }) {
     const itemCart = `
@@ -287,6 +299,7 @@ function changeCount(event) {
     if (target.classList.contains("counter-plus")) food.count++;
     renderCart();
   }
+  saveCart();
 }
 // День 3 все события в одной функции, чтобы можно было их запустить
 function init() {
