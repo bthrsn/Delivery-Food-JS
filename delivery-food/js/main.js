@@ -30,7 +30,7 @@ const cartButton = document.querySelector("#cart-button"),
 // День 1 Логин сохраняется в local storage
 let login = localStorage.getItem("gloDelivery");
 // День 4 Корзина сохраняется в local storage и привязана к логину
-const loadCart = function () {
+const loadCart = () => {
   if (localStorage.getItem(login)) {
     JSON.parse(localStorage.getItem(login)).forEach(function (item) {
       cart.push(item);
@@ -38,11 +38,11 @@ const loadCart = function () {
   }
 };
 
-const saveCart = function () {
+const saveCart = () => {
   localStorage.setItem(login, JSON.stringify(cart));
 };
 // День 3 получить данные с сервера, запустить ошибку, если ответ false
-const getData = async function (url) {
+const getData = async (url) => {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Ошибка по адрсу ${url}, 
@@ -51,28 +51,28 @@ const getData = async function (url) {
   return await response.json();
 };
 // День 1 проверка валидности логина: не все цифры, меньше 20 символов
-const valid = function (str) {
+const valid = (str) => {
   const nameReg = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/;
   return nameReg.test(str);
 };
 // День 0 функция открывает модальное окно (корзины)
-const toggleModal = function () {
+const toggleModal = () => {
   modal.classList.toggle("is-open");
 };
 // День 1 функция открывает модальное окно именно авторизации
-function toggleModalAuth() {
+const toggleModalAuth = () => {
   loginInput.style.borderColor = "";
   modalAuth.classList.toggle("is-open");
-}
+};
 // День 2 возвращаемся на главную при клике Лого
-function returnMain() {
+const returnMain = () => {
   containerPromo.classList.remove("hide");
   restaurants.classList.remove("hide");
   menu.classList.add("hide");
-}
+};
 // День 1 функция выхода из аккаунта
-function authorized() {
-  function logOut() {
+const authorized = () => {
+  const logOut = () => {
     login = "";
     cart.length = 0;
     localStorage.removeItem("gloDelivery");
@@ -83,7 +83,7 @@ function authorized() {
     buttonOut.removeEventListener("click", logOut);
     checkAuth();
     returnMain();
-  }
+  };
   console.log("Авторизован");
   userName.textContent = login;
   buttonAuth.style.display = "none";
@@ -92,12 +92,12 @@ function authorized() {
   cartButton.style.display = "flex";
   buttonOut.addEventListener("click", logOut);
   loadCart();
-}
+};
 // День 1 функция, если не авторизован и нажал на войти
-function notAuthorized() {
+const notAuthorized = () => {
   console.log("Не авторизован");
 
-  function logIn(event) {
+  const logIn = (event) => {
     event.preventDefault();
 
     if (valid(loginInput.value)) {
@@ -115,32 +115,25 @@ function notAuthorized() {
       loginInput.style.borderColor = "tomato";
       loginInput.value = "";
     }
-  }
+  };
 
   buttonAuth.addEventListener("click", toggleModalAuth);
   closeAuth.addEventListener("click", toggleModalAuth);
   logInForm.addEventListener("submit", logIn);
-}
+};
 // День 1 проверить авторизован или нет
-function checkAuth() {
-  if (login) {
-    authorized();
-  } else {
-    notAuthorized();
-  }
-}
+const checkAuth = () => (login ? authorized() : notAuthorized());
 // День 2 создать карточку ресторана на главной странице
-function createCardRestaurant(restaurant) {
+const createCardRestaurant = ({
+  image,
+  kitchen,
+  name,
+  price,
+  products,
+  stars,
+  time_of_delivery: timeOfDelivery,
+}) => {
   // День 3 во все карточки подгружаются разные данные с БД
-  const {
-    image,
-    kitchen,
-    name,
-    price,
-    products,
-    stars,
-    time_of_delivery: timeOfDelivery,
-  } = restaurant;
   const card = `
   <a  class="card card-restaurant" 
   data-products='${products}'
@@ -164,11 +157,9 @@ function createCardRestaurant(restaurant) {
 
   `;
   cardsRestaurants.insertAdjacentHTML("afterbegin", card);
-}
+};
 // День 2 создать карточку еды
-function createCardGood(goods) {
-  const { description, id, image, name, price } = goods;
-
+const createCardGood = ({ description, id, image, name, price }) => {
   const card = document.createElement("div");
   card.className = "card";
   card.insertAdjacentHTML(
@@ -200,10 +191,10 @@ function createCardGood(goods) {
   `
   );
   cardsMenu.insertAdjacentElement("afterbegin", card);
-}
+};
 // День 2 создать карточку меню при нажатии на карточку ресторана,
 // не переходя на след страницу
-function openGoods(event) {
+const openGoods = (event) => {
   const target = event.target;
   const restaurant = target.closest(".card-restaurant");
 
@@ -221,16 +212,16 @@ function openGoods(event) {
       minPrice.textContent = `От ${price} ₽`;
       category.textContent = kitchen;
       // День 3 получили данные о меню ресторанов
-      getData(`./db/${restaurant.dataset.products}`).then(function (data) {
-        data.forEach(createCardGood);
-      });
+      getData(`./db/${restaurant.dataset.products}`).then((data) =>
+        data.forEach(createCardGood)
+      );
     } else {
       toggleModalAuth();
     }
   }
-}
+};
 // День 4 Добавляем товар в  корзину
-function addToCart() {
+const addToCart = () => {
   const target = event.target;
   const buttonAddToCart = target.closest(".button-add-cart");
   if (buttonAddToCart) {
@@ -239,9 +230,7 @@ function addToCart() {
     const cost = card.querySelector(".card-price-bold").textContent;
     const id = buttonAddToCart.id;
     // День 4 Если добавили одинаковое блюдо, оно не дублируется
-    const food = cart.find(function (item) {
-      return item.id === id;
-    });
+    const food = cart.find((item) => item.id === id);
     if (food) {
       food.count += 1;
     } else {
@@ -255,9 +244,9 @@ function addToCart() {
     console.log(cart);
   }
   saveCart();
-}
+};
 // День 4 формирование списка корзины
-function renderCart() {
+const renderCart = () => {
   // День 4 Очистить корзину
   modalBody.textContent = "";
   // День 4 Доавить товары в корзину
@@ -281,13 +270,13 @@ function renderCart() {
     return result + parseFloat(item.cost) * item.count;
   }, 0);
   modalPrice.textContent = totalPrice + " ₽";
-}
+};
 // День 4 добавлять и убирать количество товаров в корзине
-function changeCount(event) {
+const changeCount = (event) => {
   const target = event.target;
 
   if (target.classList.contains("counter-button")) {
-    const food = cart.find(function (item) {
+    const food = cart.find((item) => {
       return item.id === target.dataset.id;
     });
     if (target.classList.contains("counter-minus")) {
@@ -300,20 +289,18 @@ function changeCount(event) {
     renderCart();
   }
   saveCart();
-}
+};
 // День 3 все события в одной функции, чтобы можно было их запустить
 function init() {
   // День 3 getData
-  getData("./db/partners.json").then(function (data) {
+  getData("./db/partners.json").then((data) => {
     data.forEach(createCardRestaurant);
   });
   // День 4 сформировать и открыть корзину
-  cartButton.addEventListener("click", function () {
-    renderCart();
-    toggleModal();
-  });
+  cartButton.addEventListener("click", renderCart);
+  cartButton.addEventListener("click", toggleModal);
   // День 4 кнопка Отмена в корзине очищает корзину
-  buttonClearCart.addEventListener("click", function () {
+  buttonClearCart.addEventListener("click", () => {
     cart.length = 0;
     renderCart();
   });
@@ -328,7 +315,7 @@ function init() {
   // День 2 нажать на лого
   logo.addEventListener("click", returnMain);
   // День 3 поиск по сайту
-  inputSearch.addEventListener("keydown", function (event) {
+  inputSearch.addEventListener("keydown", (event) => {
     if (event.keyCode === 13) {
       if (login) {
         const target = event.target;
@@ -339,7 +326,7 @@ function init() {
 
         if (!value || value.length < 3) {
           target.style.backgroundColor = "tomato";
-          setTimeout(function () {
+          setTimeout(() => {
             target.style.backgroundColor = "";
           }, 2000);
           return;
@@ -348,15 +335,13 @@ function init() {
         const goods = [];
 
         getData("./db/partners.json").then(function (data) {
-          const products = data.map(function (item) {
-            return item.products;
-          });
+          const products = data.map((item) => item.products);
           products.forEach(function (product) {
             getData(`./db/${product}`)
               .then(function (data) {
                 goods.push(...data);
 
-                const searchGoods = goods.filter(function (item) {
+                const searchGoods = goods.filter((item) => {
                   return (
                     item.name.toLowerCase().includes(value) ||
                     item.description.toLowerCase().includes(value)
@@ -376,9 +361,7 @@ function init() {
 
                 return searchGoods;
               })
-              .then(function (data) {
-                data.forEach(createCardGood);
-              });
+              .then((data) => data.forEach(createCardGood));
           });
         });
         // День 3 сам доделал запрос авторизации
